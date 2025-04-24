@@ -30,12 +30,23 @@ training_data = [
 ]
 
 # Tworzymy sieć
-mlp = Network([2, 3, 1], activationFun=sigmoid, activationFunDerivative=sigmoid_derivative)
+mlp = Network([2, 6, 1], activationFun=sigmoid, activationFunDerivative=sigmoid_derivative)
 
 # Trenujemy
-mlp.train(training_data, learningRate=0.2, epochs=10000)
+mlp.train(training_data, learningRate=0.2, epochs=20000)
 
 # Testujemy
 for input_vec, expected in training_data:
     pred = mlp.predict(input_vec)
     print(f"Wejście: {input_vec}, Oczekiwane: {expected}, Predykcja: {pred}")
+
+test_inputs = [
+    ([0.2, 0.8], "oczekiwane: około 1"),
+    ([0.9, 0.9], "oczekiwane: około 0"),
+    ([0.1, 0.1], "oczekiwane: około 0"),
+    ([0.5, 0.5], "oczekiwane: około 0.2 - 0.3"),
+]
+
+for inp, desc in test_inputs:
+    pred = mlp.predict(inp)
+    print(f"Wejście: {inp}, {desc}, Predykcja: {pred}")
