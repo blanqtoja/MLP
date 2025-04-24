@@ -1,4 +1,5 @@
-from neuron import Neuron 
+from Network import Network
+from Neuron import Neuron 
 import math 
 import random as r
 from ucimlrepo import fetch_ucirepo 
@@ -6,40 +7,35 @@ from ucimlrepo import fetch_ucirepo
 def activationFunction(x):
     return 1 / ( 1 + math .exp(-x))
 
+def activFunDer(x):
+    return 
   
-# fetch dataset 
-iris = fetch_ucirepo(id=53) 
-  
-# data (as pandas dataframes) 
-X = iris.data.features 
-y = iris.data.targets 
-  
-# metadata 
-# print(iris.metadata) 
-  
-# variable information 
-# print(iris.variables) 
-print(X)
 
 
-r.seed()
-# print(r.random() - 0.5)
-bias = 0
-rand = r.random() - 0.5
+import math
 
-# n1 = Neuron([1, 2], [r.random() - 0.5, r.random() - 0.5], activationFunction, bias)
-# print(n1.output())
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
 
-inputsWeights = []
-for i in range( len(X) ):
-    inputsWeights.append(r.random() - 0.5)
+def sigmoid_derivative(output):
+    return output * (1 - output)
 
-# print(inputsWeights)
-T = []
-T.append(Neuron(X, inputsWeights, activationFunction, 0))
 
-outputs = []
-for t in T:
-    outputs.append(t.output())
-    
-print(outputs)
+# Dane XOR
+training_data = [
+    ([0, 0], [0]),
+    ([0, 1], [1]),
+    ([1, 0], [1]),
+    ([1, 1], [0])
+]
+
+# Tworzymy sieć
+mlp = Network([2, 3, 1], activationFun=sigmoid, activationFunDerivative=sigmoid_derivative)
+
+# Trenujemy
+mlp.train(training_data, learningRate=0.2, epochs=10000)
+
+# Testujemy
+for input_vec, expected in training_data:
+    pred = mlp.predict(input_vec)
+    print(f"Wejście: {input_vec}, Oczekiwane: {expected}, Predykcja: {pred}")

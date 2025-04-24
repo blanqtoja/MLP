@@ -15,11 +15,14 @@
 
 class Neuron:
 
-    def __init__(self, inputs, inputWeights, activationFunction, bias):
+    def __init__(self, inputs, inputWeights, activationFunction, activFunDer, bias):
         self.inputs = inputs
         self.inputWeights = inputWeights
         self.bias = bias
         self.activationFunction = activationFunction
+        self.activFunDer = activFunDer
+        # self.learningRate = 0.0
+        self.delta = 0 #bufor na przechowywanie bleduz porpagacji wstecznej
 
     def  wSumInputs(self):
         sum = 0.0
@@ -28,5 +31,53 @@ class Neuron:
             sum += self.inputs[i] * self.inputWeights[i] 
         return sum + self.bias
     
+    #forward pass
     def output(self):
         return self.activationFunction( self.wSumInputs())
+    
+
+    # d = z - y
+    # blad predykcji
+    def calcDiff(self, target):
+        return target - self.output()
+
+    def calcDelta(self, target):
+        self.delta = (target - self.output()) * self.activFunDer(self.output())
+        return self.delta
+
+    
+    def calcDeltaHidden(self, nextLayerNeurons, myIndex):
+        sum = 0.0
+        for neuron_k in nextLayerNeurons:
+            delta_k = neuron_k.delta
+            w_jk = neuron_k.inputWeights[myIndex]
+            sum += delta_k * w_jk
+
+        self.delta = self.activFunDer(self.output()) * sum
+        return self.delta
+
+
+    def gradientForEachW (self, target):
+        # y = self.output()
+        # d = self.calcDiff(target)
+        # dy = self.activFunDer(y)
+
+        delta = -self.calcDelta(target)
+        return [ delta * x for x in self.inputs ]
+
+
+
+    #do obliczenia nowych wag potrzebne są 
+    # wejscia - self
+    # target
+    # learning rate - self 
+    # def updateWeights(self, target, learningRate):
+    #     gradients = self.gradientForEachW(target)
+    #     for i in range( len(self.inputWeights)):
+    #         self.inputWeights[i] += learningRate * gradients[i]
+    #     self.bias += learningRate * (-self.delta)
+    def updateWeights(self, learningRate):
+        for i in range(len(self.inputWeights)):
+            self.inputWeights[i] += learningRate * self.delta * self.inputs[i]
+        self.bias += learningRate * self.delta
+
